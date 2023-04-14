@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Packages\Anonymizer\src\Commands;
+namespace Outsidaz\LaravelDataAnonymization\Commands;
 
-use App\Packages\Anonymizer\src\Anonymizer;
 use Carbon\CarbonInterval;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Outsidaz\LaravelDataAnonymization\Anonymizer;
 
 class AnonymizerCommand extends Command
 {
