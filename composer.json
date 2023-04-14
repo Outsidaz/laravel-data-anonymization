@@ -27,7 +27,7 @@
     "laravel": {
       "providers": [
         "Outsidaz\\LaravelDataAnonymization\\AnonymizerServiceProvider"
-      ],
+      ]
     }
   },
   "minimum-stability": "dev",
