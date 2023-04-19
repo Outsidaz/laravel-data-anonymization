@@ -58,7 +58,7 @@ class User extends Authenticatable
     }
     
     // optional
-    public function anonymizableCondition()
+    public function anonymizableCondition(): Builder
     {
         return self::withTrashed()->where('something', '=>', '...');
     }
@@ -68,6 +68,11 @@ Anonymization is performed using command:
 
 ```bash
 php artisan db:anonymize
+```
+
+Or on specific models:
+```bash
+php artisan db:anonymize --model=\\App\User --model=\\App\\Profile
 ```
 
 ## License

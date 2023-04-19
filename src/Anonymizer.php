@@ -1,6 +1,6 @@
 <?php
 
-namespace Outsidaz\LaravelDataAnonymization;;
+namespace Outsidaz\LaravelDataAnonymization;
 use Faker\Factory;
 use Faker\Generator;
 use Illuminate\Database\Eloquent\Builder;

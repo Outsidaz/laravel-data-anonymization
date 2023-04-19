@@ -15,9 +15,10 @@ class AnonymizerCommand extends Command
      *
      * @var string
      */
-    protected $name = 'db:anonymize';
+    protected $signature = 'db:anonymize {--model=*}';
 
     public $description = 'Anonymize specific data of the database';
+
     private Anonymizer $service;
 
 
@@ -30,9 +31,18 @@ class AnonymizerCommand extends Command
 
     public function handle(): int
     {
+        $specified = $this->option('model');
+
         $anonymizationStart = microtime(true);
 
         $anonymizableClasses = $this->service->getAnonymizableClasses();
+
+        if ($specified) {
+            $anonymizableClasses=array_filter(
+                $anonymizableClasses,
+                fn($class) => in_array($class, $specified, true)
+            );
+        }
 
         $this->warn('Anonymization started');
 
