@@ -4,12 +4,15 @@ namespace Outsidaz\LaravelDataAnonymization\Commands;
 
 use Carbon\CarbonInterval;
 use Illuminate\Console\Command;
+use Illuminate\Console\ConfirmableTrait;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Outsidaz\LaravelDataAnonymization\Anonymizer;
 
 class AnonymizerCommand extends Command
 {
+    use ConfirmableTrait;
+
     /**
      * The console command name.
      *
@@ -31,6 +34,10 @@ class AnonymizerCommand extends Command
 
     public function handle(): int
     {
+        if (! $this->confirmToProceed()) {
+            return 0;
+        }
+
         $specified = $this->option('model');
 
         $anonymizationStart = microtime(true);
