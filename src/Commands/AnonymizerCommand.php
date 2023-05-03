@@ -7,6 +7,7 @@ use Illuminate\Console\Command;
 use Illuminate\Console\ConfirmableTrait;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use Outsidaz\LaravelDataAnonymization\Anonymizer;
 
 class AnonymizerCommand extends Command
@@ -75,7 +76,9 @@ class AnonymizerCommand extends Command
         $progressBar->setFormat('%current%/%max% [%bar%] %percent:3s%% | Remaining: %remaining:6s%');
 
         $this->service->getChunk($model, function (Collection $chunkItems) use ($progressBar) {
+            DB::beginTransaction();
             $chunkItems->each(fn(Model $model) => $this->service->changeData($model));
+            DB::commit();
             $progressBar->advance($chunkItems->count());
         });
 
