@@ -63,8 +63,10 @@ class Anonymizer
 
     public function changeData(Model $model): bool
     {
-        return $model->updateQuietly(
-            $model->anonymizableAttributes($this->faker)
-        );
+        return $model
+            ->setTouchedRelations([]) // disable touch owners
+            ->updateQuietly( // disable events handling
+                $model->anonymizableAttributes($this->faker)
+            );
     }
 }
