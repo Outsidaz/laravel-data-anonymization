@@ -73,7 +73,10 @@ class AnonymizerCommand extends Command
 
         $progressBar = $this->output->createProgressBar($this->service->getCount($model));
 
-        $progressBar->setFormat('%current%/%max% [%bar%] %percent:3s%% | Remaining: %remaining:6s%');
+        $progressBar->setFormat('%current%/%max% [%bar%] %percent:3s%');
+        if($this->service->getCount($model)>0) {
+            $progressBar->setFormat('%current%/%max% [%bar%] %percent:3s%% | Remaining: %remaining:6s%');
+        }
 
         $this->service->getChunk($model, function (Collection $chunkItems) use ($progressBar) {
             DB::beginTransaction();
