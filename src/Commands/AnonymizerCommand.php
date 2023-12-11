@@ -54,6 +54,26 @@ class AnonymizerCommand extends Command
 
         $this->warn('Anonymization started');
 
+        $anonymizableClassesOrdered = collect(config('anonymizer.ordered_models') ?? [])
+            ->map(fn($ac) => '\\'.$ac);
+
+        $anonymizableClasses = collect($anonymizableClasses)
+            ->diff($anonymizableClassesOrdered)
+            ->toArray();
+
+        if (!empty($anonymizableClassesOrdered)) {
+            $this->warn('Order dependent models anonymizing.');
+        }
+        foreach ($anonymizableClassesOrdered as $anonymizableClass) {
+            $this->anonymizeTable(
+                new $anonymizableClass()
+            );
+        }
+
+        if (!empty($anonymizableClassesOrdered)) {
+            $this->warn('Remaining models anonymizing.');
+        }
+        $anonymizableClasses = collect($anonymizableClasses)->diff($anonymizableClassesOrdered)->all();
         foreach ($anonymizableClasses as $anonymizableClass) {
             $this->anonymizeTable(
                 new $anonymizableClass()
