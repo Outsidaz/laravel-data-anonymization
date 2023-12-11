@@ -19,6 +19,11 @@ class Anonymizer
         );
     }
 
+    public function isBlockedEnvironment(): bool
+    {
+        return in_array(config('app.env'), config('anonymizer.blocked_env', []));
+    }
+
     private function getAllModels(): array
     {
         return File::allFiles(config('anonymizer.models_path', app_path('Models')));
@@ -63,6 +68,10 @@ class Anonymizer
 
     public function changeData(Model $model): bool
     {
+        if ($this->isBlockedEnvironment() && config('anonymizer.force_blocked_env', true)) {
+            throw new \Exception(sprintf("Environment '%s' has blocking enforced.", config('app.env')));
+        }
+
         return $model
             ->setTouchedRelations([]) // disable touch owners
             ->updateQuietly( // disable events handling

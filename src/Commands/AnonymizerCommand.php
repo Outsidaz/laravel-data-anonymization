@@ -35,7 +35,9 @@ class AnonymizerCommand extends Command
 
     public function handle(): int
     {
-        if (! $this->confirmToProceed()) {
+        if (!$this->confirmToProceed('Environment "'.config('app.env').'" blocked.', function () {
+            return $this->service->isBlockedEnvironment();
+        })) {
             return 0;
         }
 
