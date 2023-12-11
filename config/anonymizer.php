@@ -16,4 +16,13 @@ return [
     */
     'blocked_env' => ['production'],
     'force_blocked_env' => true,
+
+    /*
+    | Model Ordering
+    |--------------------------------------------------------------------------
+    |
+    | Optionally specify the order of anonymization, these Models will be anonymized first.
+    |
+    */
+    'ordered_models' => []
 ];

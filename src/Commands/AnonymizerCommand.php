@@ -56,6 +56,26 @@ class AnonymizerCommand extends Command
 
         $this->warn('Anonymization started');
 
+        $anonymizableClassesOrdered = collect(config('anonymizer.ordered_models') ?? [])
+            ->map(fn($ac) => '\\'.$ac);
+
+        $anonymizableClasses = collect($anonymizableClasses)
+            ->diff($anonymizableClassesOrdered)
+            ->toArray();
+
+        if (!empty($anonymizableClassesOrdered)) {
+            $this->warn('Order dependent models anonymizing.');
+        }
+        foreach ($anonymizableClassesOrdered as $anonymizableClass) {
+            $this->anonymizeTable(
+                new $anonymizableClass()
+            );
+        }
+
+        if (!empty($anonymizableClassesOrdered)) {
+            $this->warn('Remaining models anonymizing.');
+        }
+        $anonymizableClasses = collect($anonymizableClasses)->diff($anonymizableClassesOrdered)->all();
         foreach ($anonymizableClasses as $anonymizableClass) {
             $this->anonymizeTable(
                 new $anonymizableClass()
@@ -75,7 +95,10 @@ class AnonymizerCommand extends Command
 
         $progressBar = $this->output->createProgressBar($this->service->getCount($model));
 
-        $progressBar->setFormat('%current%/%max% [%bar%] %percent:3s%% | Remaining: %remaining:6s%');
+        $progressBar->setFormat('%current%/%max% [%bar%] %percent:3s%');
+        if($this->service->getCount($model)>0) {
+            $progressBar->setFormat('%current%/%max% [%bar%] %percent:3s%% | Remaining: %remaining:6s%');
+        }
 
         $this->service->getChunk($model, function (Collection $chunkItems) use ($progressBar) {
             DB::beginTransaction();
