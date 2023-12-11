@@ -10,8 +10,9 @@ trait Anonymizable
 {
     public function anonymizableCondition(): Builder
     {
-        return static::withTrashed();
+        return static::hasMacro('withTrashed') ? static::withTrashed() : static::query();
     }
+
     public function anonymizableAttributes(Generator $faker): array
     {
         throw new LogicException('Please implement the anonymizable method on your model.');
