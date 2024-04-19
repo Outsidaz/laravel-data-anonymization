@@ -4,6 +4,7 @@ return [
     'locale' => 'en_US',
     'chunk_size' => 1000,
     'models_path' => app_path('Models'),
+    'models_namespace' => '\\App\\Models',
 
     /*
     |--------------------------------------------------------------------------
