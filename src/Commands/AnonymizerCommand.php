@@ -25,16 +25,10 @@ class AnonymizerCommand extends Command
 
     private Anonymizer $service;
 
-
-    public function __construct()
-    {
-        parent::__construct();
-
-        $this->service = new Anonymizer();
-    }
-
     public function handle(): int
     {
+        $this->service = new Anonymizer();
+
         if (!$this->confirmToProceed('Environment "'.config('app.env').'" blocked.', function () {
             return $this->service->isBlockedEnvironment();
         })) {
