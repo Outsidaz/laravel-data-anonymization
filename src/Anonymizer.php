@@ -35,7 +35,7 @@ class Anonymizer
                 ->map(function(SplFileInfo $file){
                     $path = $file->getRelativePathName();
                     $class = str_replace('.php', '', $path);
-                    return '\\App\\Models\\' . str_replace('/', '\\', $class);
+                    return config('anonymizer.models_namespace', '\\App\\Models') . '\\' . str_replace('/', '\\', $class);
                 })
                 ->toArray();
     }
