@@ -60,7 +60,7 @@ class Anonymizer
 
     public function getChunk(Model $model, callable $call): bool
     {
-        return $this->getQuery($model)->chunk(
+        return $this->getQuery($model)->chunkById(
             config('anonymizer.chunk_size', 1000),
             $call
         );
