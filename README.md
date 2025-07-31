@@ -35,7 +35,8 @@ return [
 
 ## Usage
 
-In any model that contains sensitive data use `Anonymizable` trait and implement `anonymizableAttributes` method:
+### Model based definitions
+In any model that contains sensitive data use the `Anonymizable` trait and implement the `anonymizableAttributes` method:
 
 ```php
 <?php
@@ -50,10 +51,10 @@ class User extends Authenticatable
         return [
             'email' => $this->id . '@custom.dev',
             'password' => 'secret',
-            'firstname' => $faker->firstName,
-            'surname' => $faker->lastName,
-            'phone' => $faker->e164PhoneNumber,
-            'position' => $faker->jobTitle,
+            'firstname' => $faker->firstName(),
+            'surname' => $faker->lastName(),
+            'phone' => $faker->e164PhoneNumber(),
+            'position' => $faker->jobTitle(),
             'token' => null,
         ];
     }
@@ -65,6 +66,133 @@ class User extends Authenticatable
     }
 }
 ```
+
+### Factory based definitions
+To reduce the amount of necessary code, the anonymizable attributes may also be defined on your factories. 
+Do note that the model still needs to implement the `Anonymizable` to work with these definitions.
+
+#### Attributes based on the factory's definition
+It is possible to use the factory's definition to use as anonymizable values. 
+Implement the `anonymizableAttributes` method on your factory and return an array with keys that corresponds to the definition of the factory:
+
+```php
+<?php
+
+class UserFactory extends Factory
+{
+    public function definition(): array
+    {
+        return [
+            'email' => $this->faker()->numberBetween(1, 100_000) . '@custom.dev',
+            'password' => 'secret',
+            'firstname' => $this->faker->firstName(),
+            'surname' => $this->faker->lastName(),
+            'phone' => $this->faker->e164PhoneNumber(),
+            'position' => $this->faker->jobTitle(),
+            'token' => null,
+        ]
+    }
+    
+    public function anonymizableAttributes(): array
+    {
+        return [
+            'email',
+            'password',
+            'firstname',
+            'surname',
+            'phone',
+            'position',
+            'token',
+        ]
+    }
+}
+```
+This will use reduce the amount of code you need to write if the data you want to anonymize is the same as your factory's definition.
+
+Note that only the defined keys will be anonymized!
+
+#### Attributes based on a custom definition
+If you prefer to still use custom values, you can still define them on the factory. 
+Implement the `anonymizableDefinition` method on your factory, and return a keyed array:
+
+```php
+<?php
+
+class UserFactory extends Factory
+{
+    public function definition(): array
+    {
+        return [
+            'email' => $this->faker()->numberBetween(1, 100_000) . '@custom.dev',
+            'password' => 'secret',
+            'firstname' => $faker->firstName(),
+            'surname' => $faker->lastName(),
+            'phone' => $faker->e164PhoneNumber(),
+            'position' => $faker->jobTitle(),
+            'token' => null,
+        ]
+    }
+    
+    public function anonymizableDefinition(): array
+    {
+        return [
+            'email' => $this->faker()->numberBetween(1, 100_000) . '@custom.dev',
+            'password' => 'secret',
+            'firstname' => $faker->firstName(),
+            'surname' => $faker->lastName(),
+            'phone' => $faker->e164PhoneNumber(),
+            'position' => $faker->jobTitle(),
+            'token' => $this->faker->md5(),
+        ]
+    }
+}
+```
+
+Defining custom values is mostly useful when used in tandem with the `anonymizableAttributes` method. 
+This allows certain attributes from the factory to be used, while still defining custom attributes when necessary:
+```php
+<?php
+
+class UserFactory extends Factory
+{
+    public function definition(): array
+    {
+        return [
+            'email' => $this->faker()->numberBetween(1, 100_000) . '@custom.dev',
+            'password' => 'secret',
+            'firstname' => $faker->firstName(),
+            'surname' => $faker->lastName(),
+            'phone' => $faker->e164PhoneNumber(),
+            'position' => $faker->jobTitle(),
+            'token' => null,
+        ]
+    }
+    
+    public function anonymizableAttributes(): array
+    {
+        return [
+            'email',
+            'password',
+            'firstname',
+            'surname',
+            'phone',
+            'position',
+        ]
+    }
+    
+    public function anonymizableDefinition(): array
+    {
+        return [
+            'token' => $this->faker->md5(),
+        ]
+    }
+}
+```
+
+### Important note
+>The data from the `anonymizable` methods on the factory will overwrite the data defined in the  `anonymizableAttributes` method on the model!
+
+### Running the anonymizer
 Anonymization is performed using command:
 
 ```bash

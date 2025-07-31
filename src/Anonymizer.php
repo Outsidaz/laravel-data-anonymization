@@ -72,10 +72,46 @@ class Anonymizer
             throw new \Exception(sprintf("Environment '%s' has blocking enforced.", config('app.env')));
         }
 
+        $anonymizableAttributes = $model->anonymizableAttributes($this->faker);
+        $anonymizableAttributesBasedOnFactoryDefinition = [];
+        $anonymizableAttributesBasedOnCustomDefinition = [];
+
+        /** @var \Illuminate\Database\Eloquent\Factories\Factory $factory */
+        $factory = $model::factory();
+
+        // Extract attributes, including values, from the factory's definition, if available
+        if (method_exists($factory, 'anonymizableAttributes')) {
+            $anonymizableAttributesKeys = $factory->anonymizableAttributes();
+            $factoryDefinition = $factory->definition();
+
+            $keysToLeaveAlone = array_diff_key($factoryDefinition, array_flip($anonymizableAttributesKeys));
+
+            $anonymizableAttributesBasedOnFactoryDefinition = array_diff_key(
+                $factoryDefinition,
+                array_flip(array_keys($keysToLeaveAlone))
+            );
+        }
+
+        // Extract attributes and values from the custom definition, if available
+        if (method_exists($factory, 'anonymizableDefinition')) {
+            $anonymizableAttributesBasedOnCustomDefinition = $factory->anonymizableDefinition($this->faker);
+        }
+
+        // Merge the list of custom definitions and the factory based definitions to use as the new anonymizable attributes
+        if (
+            ! empty($anonymizableAttributesBasedOnFactoryDefinition)
+            || ! (empty($anonymizableAttributesBasedOnCustomDefinition))
+        ) {
+            $anonymizableAttributes = array_merge(
+                $anonymizableAttributesBasedOnFactoryDefinition,
+                $anonymizableAttributesBasedOnCustomDefinition
+            );
+        }
+
         return $model
             ->setTouchedRelations([]) // disable touch owners
             ->updateQuietly( // disable events handling
-                $model->anonymizableAttributes($this->faker)
+                $anonymizableAttributes
             );
     }
 }
