@@ -76,11 +76,19 @@ class Anonymizer
         $anonymizableAttributesBasedOnFactoryDefinition = [];
         $anonymizableAttributesBasedOnCustomDefinition = [];
 
-        /** @var \Illuminate\Database\Eloquent\Factories\Factory $factory */
-        $factory = $model::factory();
+        /** @var \Illuminate\Database\Eloquent\Factories\Factory|null $factory */
+        $factory = null;
+        if (method_exists($model, 'factory')) {
+            try {
+                $factory = $model::factory();
+            } catch (\Throwable) {
+                // Model uses HasFactory but no factory class exists — the anonymization
+                // data still comes from the model's Anonymizable trait, so proceed.
+            }
+        }
 
         // Extract attributes, including values, from the factory's definition, if available
-        if (method_exists($factory, 'anonymizableAttributes')) {
+        if ($factory && method_exists($factory, 'anonymizableAttributes')) {
             $anonymizableAttributesKeys = $factory->anonymizableAttributes();
             $factoryDefinition = $factory->definition();
 
@@ -93,7 +101,7 @@ class Anonymizer
         }
 
         // Extract attributes and values from the custom definition, if available
-        if (method_exists($factory, 'anonymizableDefinition')) {
+        if ($factory && method_exists($factory, 'anonymizableDefinition')) {
             $anonymizableAttributesBasedOnCustomDefinition = $factory->anonymizableDefinition($this->faker);
         }
 
