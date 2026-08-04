@@ -44,7 +44,7 @@ class Anonymizer
     {
         return array_filter(
             $this->getAllClasses(),
-            fn($class) => in_array(Anonymizable::class, class_uses($class), true)
+            fn($class) => in_array(Anonymizable::class, class_uses_recursive($class), true)
         );
     }
 
